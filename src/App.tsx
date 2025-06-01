@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import DirectorySelector from "./_components/directory-selector";
 import PhotoDisplay from "./_components/photo-display";
+import CardStack from "./_components/card-stack";
 
 interface PhotoInfo {
 	name: string;
@@ -47,17 +48,26 @@ function App() {
 					destinationDirectory={destinationDirectory}
 				/>
 
-				{/* Photo Display */}
-				{sourceDirectory && (
+				{/* {sourceDirectory && (
 					<div className="bg-white rounded-lg shadow-lg p-6">
 						<PhotoDisplay
 							sourceDirectory={sourceDirectory}
 							onPhotoSelect={handlePhotoSelect}
 						/>
 					</div>
+				)} */}
+
+				{/* Card Stack */}
+				{sourceDirectory && destinationDirectory && (
+					<div className="bg-white rounded-lg shadow-lg p-6">
+						<CardStack
+							sourceDirectory={sourceDirectory}
+							targetDirectory={destinationDirectory}
+						/>
+					</div>
 				)}
 
-				{/* Photo Sorting Actions - Coming Soon */}
+				{/* 		
 				{selectedPhoto && destinationDirectory && (
 					<div className="bg-white rounded-lg shadow-lg p-6">
 						<h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -87,7 +97,7 @@ function App() {
 							Actions for: {selectedPhoto.name}
 						</p>
 					</div>
-				)}
+				)} */}
 			</div>
 		</main>
 	);

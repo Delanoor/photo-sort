@@ -3,6 +3,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { cn } from "../lib/utils";
 
 interface PhotoInfo {
 	name: string;
@@ -37,6 +38,7 @@ const CardStack: React.FC<CardStackProps> = ({
 	const [error, setError] = useState<string>("");
 	const [cards, setCards] = useState<Card[]>(externalCards || []);
 	const [copying, setCopying] = useState(false);
+	const [isSelected, setIsSelected] = useState<number | null>(null);
 
 	// Create spring animation for the top card
 	const [{ x, rot, scale }, api] = useSpring(() => ({
@@ -231,6 +233,10 @@ const CardStack: React.FC<CardStackProps> = ({
 		</div>
 	);
 
+	const toggleSelected = (id: number) => {
+		setIsSelected((prev) => (prev === id ? null : id));
+	};
+
 	// Loading state
 	if (loading) {
 		return (
@@ -274,7 +280,7 @@ const CardStack: React.FC<CardStackProps> = ({
 	}
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 py-4 h-screen flex flex-col">
 			{/* Controls info */}
 			<div className="text-center text-sm text-gray-600 mb-4">
 				<p>
@@ -291,7 +297,7 @@ const CardStack: React.FC<CardStackProps> = ({
 			</div>
 
 			{/* Card Stack */}
-			<div className="relative flex justify-center items-center h-[500px]">
+			<div className="relative flex justify-center items-start w-full h-full">
 				{cards.map((card, index) => {
 					// Only render cards from current index and a few ahead
 					if (index < currentIndex || index > currentIndex + 3) return null;
@@ -306,6 +312,9 @@ const CardStack: React.FC<CardStackProps> = ({
 						<animated.div
 							key={card.id}
 							style={{
+								width: isSelected === card.id && isTop ? "90dvw" : "320px",
+								height: isSelected === card.id && isTop ? "100%" : "420px",
+								transition: "width 0.3s ease-in-out, height 0.3s ease-in-out",
 								// Only apply animation to the top card
 								...(isTop
 									? {
@@ -323,9 +332,20 @@ const CardStack: React.FC<CardStackProps> = ({
 								touchAction: "none",
 								opacity: isTop ? 1 : Math.max(0.4, 1 - stackLevel * 0.25),
 							}}
-							className="w-[320px] h-[420px] bg-white rounded-2xl shadow-xl will-change-transform border-2 border-gray-100"
+							onClick={() => toggleSelected(card.id)}
+							className={cn(
+								"w-[320px] max-w-screen-md h-[420px] bg-white rounded-2xl shadow-xl will-change-transform border-2 border-gray-100",
+								{
+									"border-blue-500": isSelected === card.id && isTop,
+								},
+							)}
 						>
-							<div className="w-full h-full flex items-center justify-center p-5">
+							<div
+								className={cn(
+									"w-full h-full flex items-center justify-center p-5",
+									{ "h-full": isTop && isSelected === card.id },
+								)}
+							>
 								{card.content}
 							</div>
 						</animated.div>
